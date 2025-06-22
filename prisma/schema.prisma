@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String      @id @default(uuid())
+  fullname String
+  phone    String      @unique
+  password String
+  isActive Boolean
+  balance  Decimal?
+  role     USER_ROLE   @default(STAFF)
+  status   USER_STATUS @default(INACTIVE)
+  Product  Product[]
+  Salary   Salary[]
+  Partners Partners[]
+  Contract Contract[]
+  Payment  Payment[]
+  Buy      Buy[]
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  title    String
+  time     Decimal
+  isActive Boolean
+  Product  Product[]
+}
+
+model Product {
+  id         String     @id @default(uuid())
+  title      String
+  sellPrice  Decimal
+  buyPrice   Decimal
+  quantity   Decimal
+  unit       UNIT_TYPE
+  comment    String
+  isActive   Boolean
+  image      String
+  categoryId String
+  category   Category   @relation(fields: [categoryId], references: [id])
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  Contract   Contract[]
+  Buy        Buy[]
+}
+
+model Salary {
+  id      String  @id @default(uuid())
+  amount  Decimal
+  comment String
+  userId  String
+  user    User    @relation(fields: [userId], references: [id])
+}
+
+model Partners {
+  id       String     @id @default(uuid())
+  fullname String
+  phone    String     @unique
+  isActive Boolean
+  balance  Decimal
+  role     ROLE
+  address  String
+  userId   String //bu yerda owner yoki staff id boladi qaysi admin yaratganini bilish uchun
+  user     User       @relation(fields: [userId], references: [id])
+  Contract Contract[]
+  Payment  Payment[]
+  Buy      Buy[]
+}
+
+model Payment {
+  id          String       @id @default(uuid())
+  amount      Decimal
+  comment     String
+  paymentType PAYMENT_TYPE
+  type        TYPE
+  partnerId   String
+  partner     Partners     @relation(fields: [partnerId], references: [id])
+  debtId      String
+  debt        Debt         @relation(fields: [debtId], references: [id])
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+}
+
+model Buy {
+  id        String   @id @default(uuid())
+  quantity  Decimal
+  comment   String
+  buyPrice  Decimal
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  partnerId String
+  partner   Partners @relation(fields: [partnerId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Contract {
+  id               String             @id @default(uuid())
+  quantity         Decimal
+  sellPrice        Decimal
+  time             Decimal
+  userId           String
+  user             User               @relation(fields: [userId], references: [id])
+  partnerId        String
+  partner          Partners           @relation(fields: [partnerId], references: [id])
+  productId        String
+  product          Product            @relation(fields: [productId], references: [id])
+  Debt             Debt[]
+  ReturnedProducts ReturnedProducts[]
+}
+
+model Debt {
+  id         String    @id @default(uuid())
+  total      Decimal
+  time       Decimal
+  contractId String
+  contract   Contract  @relation(fields: [contractId], references: [id])
+  Payment    Payment[]
+}
+
+model ReturnedProducts {
+  id         String   @id @default(uuid())
+  reason     String
+  isNew      Boolean
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id])
+}
+
+enum USER_ROLE {
+  OWNER
+  STAFF
+}
+
+enum ROLE {
+  SELLER
+  CUSTOMER
+}
+
+enum USER_STATUS {
+  ACTIVE
+  INACTIVE
+}
+
+enum UNIT_TYPE {
+  KILOGRAM
+  LITER
+  SQUARE_METER
+  PIECE
+}
+
+enum PAYMENT_TYPE {
+  CASH
+  CARD
+}
+
+enum TYPE {
+  IN
+  OUT
+}
