@@ -1,11 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { CreateReturnedProductDto } from './dto/create-returned-product.dto';
 import { UpdateReturnedProductDto } from './dto/update-returned-product.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ReturnedProductsService {
-  create(createReturnedProductDto: CreateReturnedProductDto) {
-    return 'This action adds a new returnedProduct';
+  constructor(private readonly prisma: PrismaService) { }
+  async create(createReturnedProductDto: CreateReturnedProductDto) {
+    try {
+      const returnedProduct = await this.prisma.returnedProducts.create({data: createReturnedProductDto})
+      const contract = await this.prisma.contract.findFirst({where: {id: createReturnedProductDto.contractId}})
+      if(createReturnedProductDto.isNew){
+        await this.prisma.partners.update({
+          data: { balance: { decrement: +contract?.quantity! * +contract?.sellPrice! } },
+          where: {id: contract?.partnerId}
+        })
+      }
+      await this.prisma.contract.delete({where: {id: contract?.id}})
+      return returnedProduct;
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   findAll() {

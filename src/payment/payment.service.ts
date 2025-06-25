@@ -15,7 +15,7 @@ export class PaymentService {
       const payment = await this.prisma.payment.create({ data: { ...createPaymentDto, userId } })
       if (payment.type === TYPE.IN) {
         const debt = await this.prisma.debt.findFirst({ where: { id: payment.debtId } })
-        const result = Number(payment.amount) / (Number(debt?.total) / Number(debt?.time))
+        const result = Math.round(Number(payment.amount) / (Number(debt?.total) / Number(debt?.time)))
         await this.prisma.debt.update({
           where: { id: payment.debtId },
           data: {
@@ -27,7 +27,13 @@ export class PaymentService {
             }
           }
         })
+      } else if(payment.type === TYPE.OUT) {
+        await this.prisma.partners.update({
+          data: { balance: { decrement: createPaymentDto.amount } },
+          where: {id: createPaymentDto.partnerId}
+        })
       }
+      return payment
     } catch (error) {
       console.log(error);
     }

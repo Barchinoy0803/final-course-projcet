@@ -13,12 +13,12 @@ export class CreatePaymentDto {
     @IsEnum(PAYMENT_TYPE)
     paymentType: PAYMENT_TYPE 
     
-    @IsEnum(PAYMENT_TYPE)
+    @IsEnum(TYPE)
     type: TYPE
     
     @IsString()
     @IsNotEmpty()
-    partnerId: string ///customer id keladi
+    partnerId: string
     
     @IsString()
     @IsNotEmpty()

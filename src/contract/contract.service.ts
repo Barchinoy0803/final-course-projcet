@@ -3,6 +3,7 @@ import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Request } from 'express';
+import { time } from 'console';
 
 @Injectable()
 export class ContractService {
@@ -12,6 +13,14 @@ export class ContractService {
     try {
       const userId = req['user'].id
       const contract = await this.prisma.contract.create({ data: { ...createContractDto, userId } })
+      if(contract){
+        const {id, sellPrice, quantity, time} = contract;
+        await this.prisma.debt.create({data: {
+          total: +sellPrice * +quantity,
+          contractId: id,
+          time
+        }})
+      }
       return contract
     } catch (error) {
       console.log(error);

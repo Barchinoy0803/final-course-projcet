@@ -1,5 +1,5 @@
 // partners.controller.ts
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query, UseGuards } from '@nestjs/common';
 import { PartnersService } from './partners.service';
 import { CreatePartnerDto } from './dto/create-partner.dto';
 import { UpdatePartnerDto } from './dto/update-partner.dto';
@@ -12,6 +12,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('Partners')
 @Controller('partners')
@@ -19,6 +20,7 @@ export class PartnersController {
   constructor(private readonly partnersService: PartnersService) { }
 
   @Post()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Create a new partner' })
   @ApiResponse({ status: 201, description: 'Partner successfully created' })
   create(@Body() createPartnerDto: CreatePartnerDto, @Req() req: Request) {
