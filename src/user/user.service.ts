@@ -8,27 +8,39 @@ export class UserService {
 
   async findAll(page = 1, limit = 10, search = '') {
     try {
-      const pageNumber = Number(page)
-      const limitNumber = Number(limit)
+      const pageNumber = Number(page);
+      const limitNumber = Number(limit);
 
-      let users = await this.prisma.user.findMany({
-        where: {
-          fullname: {
-            contains: search,
-            mode: "insensitive"
-          }
-        },
-        include: {
-          
-        },
-        skip: (pageNumber - 1) * limitNumber,
-        take: limitNumber
-      })
-      return users
+      const [users, totalCount] = await Promise.all([
+        this.prisma.user.findMany({
+          where: {
+            fullname: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          skip: (pageNumber - 1) * limitNumber,
+          take: limitNumber,
+        }),
+        this.prisma.user.count({
+          where: {
+            fullname: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        }),
+      ]);
+
+      return {
+        data: users,
+        totalCount,
+      };
     } catch (error) {
-      throw new InternalServerErrorException(error)
+      throw new InternalServerErrorException(error);
     }
   }
+
 
   async findOne(id: string) {
     try {
