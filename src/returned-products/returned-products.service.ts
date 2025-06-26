@@ -1,41 +1,65 @@
-import { Injectable } from '@nestjs/common';
-import { CreateReturnedProductDto } from './dto/create-returned-product.dto';
-import { UpdateReturnedProductDto } from './dto/update-returned-product.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
+import { CreateReturnedProductDto } from './dto/create-returned-product.dto'
+import { UpdateReturnedProductDto } from './dto/update-returned-product.dto'
+import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
 export class ReturnedProductsService {
-  constructor(private readonly prisma: PrismaService) { }
-  async create(createReturnedProductDto: CreateReturnedProductDto) {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(dto: CreateReturnedProductDto) {
     try {
-      const returnedProduct = await this.prisma.returnedProducts.create({data: createReturnedProductDto})
-      const contract = await this.prisma.contract.findFirst({where: {id: createReturnedProductDto.contractId}})
-      if(createReturnedProductDto.isNew){
-        await this.prisma.partners.update({
-          data: { balance: { decrement: +contract?.quantity! * +contract?.sellPrice! } },
-          where: {id: contract?.partnerId}
+      return this.prisma.$transaction(async tx => {
+        const returnedProduct = await tx.returnedProducts.create({ data: dto })
+        const contract = await tx.contract.findUnique({ where: { id: dto.contractId } })
+        if (!contract) throw new NotFoundException('Contract not found')
+        await tx.partners.update({
+          where: { id: contract.partnerId },
+          data: {
+            balance: { decrement: +contract.quantity * +contract.sellPrice },
+          },
         })
-      }
-      await this.prisma.contract.delete({where: {id: contract?.id}})
-      return returnedProduct;
+        if (dto.isNew) {
+          await tx.product.update({
+            where: { id: contract.productId },
+            data: { quantity: { increment: contract.quantity } },
+          })
+        }
+        await tx.contract.delete({ where: { id: contract.id } })
+        return returnedProduct
+      })
     } catch (error) {
-      console.log(error)
+      throw new BadRequestException(error.message)
     }
   }
 
-  findAll() {
-    return `This action returns all returnedProducts`;
+  async findAll(page = 1, limit = 20) {
+    const skip = (page - 1) * limit
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.returnedProducts.findMany({
+        skip,
+        take: limit,
+        include: { contract: true },
+      }),
+      this.prisma.returnedProducts.count(),
+    ])
+    return { data, total, page, limit }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} returnedProduct`;
+  async findOne(id: string) {
+    const returnedProduct = await this.prisma.returnedProducts.findUnique({
+      where: { id },
+      include: { contract: true },
+    })
+    if (!returnedProduct) throw new NotFoundException('Returned product not found')
+    return returnedProduct
   }
 
-  update(id: number, updateReturnedProductDto: UpdateReturnedProductDto) {
-    return `This action updates a #${id} returnedProduct`;
+  async update(id: string, dto: UpdateReturnedProductDto) {
+    return this.prisma.returnedProducts.update({ where: { id }, data: dto })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} returnedProduct`;
+  async remove(id: string) {
+    return this.prisma.returnedProducts.delete({ where: { id } })
   }
 }

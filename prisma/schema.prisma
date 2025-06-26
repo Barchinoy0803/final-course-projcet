@@ -27,7 +27,7 @@ model User {
 model Category {
   id       String    @id @default(uuid())
   title    String
-  time     Decimal //bu qaysi categoryadagi product qancha vaqtga berilwii
+  time     Decimal
   isActive Boolean
   Product  Product[]
 }
@@ -37,7 +37,7 @@ model Product {
   title      String
   sellPrice  Decimal
   buyPrice   Decimal
-  quantity   Decimal //bu yerda default 0 turiwi kerak owa buy orqali sotib olingan prodcutlar  qowilib boradi bunga
+  quantity   Decimal
   unit       UNIT_TYPE
   comment    String
   isActive   Boolean
@@ -96,7 +96,7 @@ model Buy {
   user      User     @relation(fields: [userId], references: [id])
   partnerId String
   partner   Partners @relation(fields: [partnerId], references: [id])
-  productId String //buyerda productga qowib qoyiw kk wunca quantityda 
+  productId String
   product   Product  @relation(fields: [productId], references: [id])
 }
 
@@ -104,12 +104,12 @@ model Contract {
   id               String             @id @default(uuid())
   quantity         Decimal
   sellPrice        Decimal
-  time             Decimal               // bu yerdagi productdan categoruyasidagi time ga qarab default qoyib qoyiw kk 
+  time             Decimal 
   userId           String
   user             User               @relation(fields: [userId], references: [id])
   partnerId        String
   partner          Partners           @relation(fields: [partnerId], references: [id])
-  productId        String //bu yerda owa productni quatitysidan ayirib qoyiw kerak chunki produsct sotilaypti agar prodcutni quatitysi buyerdagi quantitydan kattta bolsa
+  productId        String
   product          Product            @relation(fields: [productId], references: [id])
   Debt             Debt[]
   ReturnedProducts ReturnedProducts[]
@@ -127,7 +127,7 @@ model Debt {
 model ReturnedProducts {
   id         String   @id @default(uuid())
   reason     String
-  isNew      Boolean                     //isNew true yoki flase boliwidan qati nazar pul qayatrib berilwii kerak va balancedan - bolib asar true bolsa product soniga qowiliwi kk
+  isNew      Boolean                     
   contractId String                       
   contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 }
