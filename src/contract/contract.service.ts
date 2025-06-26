@@ -3,7 +3,6 @@ import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Request } from 'express';
-import { time } from 'console';
 
 @Injectable()
 export class ContractService {
