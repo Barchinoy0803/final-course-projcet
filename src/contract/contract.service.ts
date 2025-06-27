@@ -11,24 +11,26 @@ export class ContractService {
   async create(createContractDto: CreateContractDto, req: Request) {
     try {
       const userId = req['user'].id
-      const product = await this.prisma.product.findUnique({where: {id: createContractDto.productId}})
+      const product = await this.prisma.product.findUnique({ where: { id: createContractDto.productId } })
 
-      if(!product) throw new Error("Product not found")
-      if(+product.quantity < +createContractDto.quantity) throw new Error('There is no enought product!')
+      if (!product) throw new Error("Product not found")
+      if (+product.quantity < +createContractDto.quantity) throw new Error('There is no enought product!')
 
-      const category = await this.prisma.category.findUnique({where: {id: product.categoryId}})
+      const category = await this.prisma.category.findUnique({ where: { id: product.categoryId } })
 
       const contract = await this.prisma.contract.create({ data: { ...createContractDto, userId } })
-      if(contract){
-        const {id, sellPrice, quantity, time} = contract;
-        await this.prisma.debt.create({data: {
-          total: +sellPrice * +quantity,
-          contractId: id,
-          time: time ?? category?.time
-        }})
+      if (contract) {
+        const { id, sellPrice, quantity, time } = contract;
+        await this.prisma.debt.create({
+          data: {
+            total: +sellPrice * +quantity,
+            contractId: id,
+            time: time ?? category?.time
+          }
+        })
         await this.prisma.product.update({
           data: { quantity: { decrement: createContractDto.quantity } },
-          where: {id: createContractDto.productId}
+          where: { id: createContractDto.productId }
         })
       }
       return contract
@@ -45,6 +47,7 @@ export class ContractService {
         this.prisma.contract.findMany({
           skip,
           take: limit,
+          include: { Debt: true }
         }),
         this.prisma.contract.count(),
       ]);
@@ -57,7 +60,7 @@ export class ContractService {
     } catch (error) {
       console.error(error);
       throw error;
-    }  
+    }
   }
 
 

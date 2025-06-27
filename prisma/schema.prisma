@@ -63,7 +63,7 @@ model Partners {
   fullname String
   phone    String     @unique
   isActive Boolean
-  balance  Decimal
+  balance  Decimal?
   role     ROLE
   address  String
   userId   String

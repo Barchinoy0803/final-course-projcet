@@ -8,7 +8,7 @@ export class CreatePartnerDto {
   @IsNotEmpty()
   fullname: string;
 
-  @ApiProperty({ example: "+998901234567", description: "Phone number of the partner" })
+  @ApiProperty({ example: "+998901111111", description: "Phone number of the partner" })
   @IsString()
   @IsNotEmpty()
   phone: string;
@@ -18,10 +18,10 @@ export class CreatePartnerDto {
   @IsNotEmpty()
   isActive: boolean;
 
-  @ApiProperty({ example: 100000, description: "Initial balance", required: false })
+  @ApiProperty({ example: 0, description: "Initial balance", required: false })
   @IsNumber()
   @IsOptional()
-  balance: number;
+  balance?: number;
 
   @ApiProperty({ enum: ROLE, example: ROLE.SELLER, description: "Role of the partner" })
   @IsEnum(ROLE)

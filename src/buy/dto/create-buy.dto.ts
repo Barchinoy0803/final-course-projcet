@@ -17,10 +17,6 @@ export class CreateBuyDto {
   @Min(0)
   buyPrice!: number;
 
-  @ApiProperty({ example: '820dcd4d-5f08-4f01-8e04-2e95e6e5a9a9' })
-  @IsUUID()
-  userId!: string;
-
   @ApiProperty({ example: '720b651d-6f46-41dc-a5d7-1c87947e79b3' })
   @IsUUID()
   partnerId!: string;

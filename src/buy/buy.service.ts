@@ -3,18 +3,21 @@ import { CreateBuyDto } from './dto/create-buy.dto';
 import { UpdateBuyDto } from './dto/update-buy.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { Request } from 'express';
 
 @Injectable()
 export class BuyService {
-  constructor(private readonly prisma: PrismaService) {}
-    async create(dto: CreateBuyDto) {
+  constructor(private readonly prisma: PrismaService) { }
+  async create(dto: CreateBuyDto, req: Request) {
     try {
+      const userId = req['user'].id
       const { quantity, ...rest } = dto;
       const quantityDecimal = new Prisma.Decimal(quantity);
 
       return await this.prisma.$transaction(async (tx) => {
         const buy = await tx.buy.create({
           data: {
+            userId,
             quantity: quantityDecimal,
             ...rest,
           },
