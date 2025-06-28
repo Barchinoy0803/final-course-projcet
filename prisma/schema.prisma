@@ -101,6 +101,7 @@ model Buy {
   product   Product  @relation(fields: [productId], references: [id])
 }
 
+
 model Contract {
   id               String             @id @default(uuid())
   quantity         Decimal
