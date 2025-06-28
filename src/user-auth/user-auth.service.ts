@@ -8,7 +8,6 @@ import * as bcrypt from "bcrypt"
 import { LoginDto } from './dto/login-user.dto';
 import { USER_STATUS } from '@prisma/client';
 
-
 @Injectable()
 export class UserAuthService {
   constructor(
@@ -23,7 +22,6 @@ export class UserAuthService {
     let user = await this.prisma.user.findUnique({ where: { phone } })
     return user
   }
-
 
   async register(registerUserDto: RegisterDto) {
     try {

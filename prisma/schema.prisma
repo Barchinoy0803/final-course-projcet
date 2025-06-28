@@ -30,6 +30,7 @@ model Category {
   time     Decimal
   isActive Boolean
   Product  Product[]
+  //image qo'yiilishi kerak optional
 }
 
 model Product {
@@ -41,7 +42,7 @@ model Product {
   unit       UNIT_TYPE
   comment    String
   isActive   Boolean
-  image      String
+  image      String //optional bolishi kerak
   categoryId String
   category   Category   @relation(fields: [categoryId], references: [id])
   userId     String
@@ -63,7 +64,7 @@ model Partners {
   fullname String
   phone    String     @unique
   isActive Boolean
-  balance  Decimal?
+  balance  Decimal? //bu ham SELLER ham CUSTOMER 
   role     ROLE
   address  String
   userId   String
@@ -79,7 +80,7 @@ model Payment {
   comment     String
   paymentType PAYMENT_TYPE
   type        TYPE
-  partnerId   String
+  partnerId   String //customer to'lov qiladi, o'sha paytda berilgan summani partnerdan yani rolei Customer bolgan partner - qilihs kerak
   partner     Partners     @relation(fields: [partnerId], references: [id])
   debtId      String
   debt        Debt         @relation(fields: [debtId], references: [id], onDelete: Cascade)
@@ -94,7 +95,7 @@ model Buy {
   buyPrice  Decimal  
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  partnerId String
+  partnerId String //buy bolganda partner seller boaldi uni balancedan berilagn summa kaamyishi kerak
   partner   Partners @relation(fields: [partnerId], references: [id])
   productId String
   product   Product  @relation(fields: [productId], references: [id])
@@ -104,7 +105,7 @@ model Contract {
   id               String             @id @default(uuid())
   quantity         Decimal
   sellPrice        Decimal
-  time             Decimal 
+  time             Decimal //to'g'irlahs kerak
   userId           String
   user             User               @relation(fields: [userId], references: [id])
   partnerId        String
@@ -113,6 +114,7 @@ model Contract {
   product          Product            @relation(fields: [productId], references: [id])
   Debt             Debt[]
   ReturnedProducts ReturnedProducts[]
+  //status (returned, completed)
 }
 
 model Debt {
@@ -122,6 +124,9 @@ model Debt {
   contractId String
   contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
   Payment    Payment[]
+  // - time-left;
+ 	// - total-left;
+	// - status (paid, notcompleted)
 }
 
 model ReturnedProducts {
