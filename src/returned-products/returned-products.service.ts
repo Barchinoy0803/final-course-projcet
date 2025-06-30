@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { CreateReturnedProductDto } from './dto/create-returned-product.dto'
 import { UpdateReturnedProductDto } from './dto/update-returned-product.dto'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { CONTRACT_TYPE } from '@prisma/client';
 
 @Injectable()
 export class ReturnedProductsService {
@@ -25,7 +26,7 @@ export class ReturnedProductsService {
             data: { quantity: { increment: contract.quantity } },
           })
         }
-        await tx.contract.delete({ where: { id: contract.id } })
+        await tx.contract.update({ where: { id: contract.id }, data: {status: CONTRACT_TYPE.RETURNED}})
         return returnedProduct
       })
     } catch (error) {

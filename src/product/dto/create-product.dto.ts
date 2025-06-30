@@ -1,5 +1,5 @@
 import { UNIT_TYPE } from '@prisma/client';
-import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProductDto {
@@ -65,7 +65,7 @@ export class CreateProductDto {
     description: 'URL of the product image or base64 string',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   image: string;
 
   @ApiProperty({

@@ -9,7 +9,11 @@ export class DebtService {
 
   async create(createDebtDto: CreateDebtDto) {
     try {
-      const debt = await this.prisma.debt.create({ data: createDebtDto })
+      const debt = await this.prisma.debt.create({ data: {
+        ...createDebtDto,
+        totalLeft: createDebtDto.total,
+        timeLeft: createDebtDto.time
+      } })
       return debt
     } catch (error) {
       console.log(error);

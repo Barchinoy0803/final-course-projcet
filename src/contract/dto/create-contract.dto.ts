@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDebtDto {
@@ -32,8 +32,8 @@ export class CreateContractDto {
 
   @ApiProperty({ example: 12, description: 'Time duration of the contract in months' })
   @IsNumber()
-  @IsNotEmpty()
-  time: number;
+  @IsOptional()
+  time?: number;
 
   @ApiProperty({ example: 'partner-uuid', description: 'ID of the partner involved in the contract' })
   @IsString()
@@ -45,4 +45,6 @@ export class CreateContractDto {
   @IsNotEmpty()
   productId: string
 
+  @IsOptional()
+  status: string;
 }

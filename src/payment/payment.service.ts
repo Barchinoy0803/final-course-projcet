@@ -19,18 +19,13 @@ export class PaymentService {
         await this.prisma.debt.update({
           where: { id: payment.debtId },
           data: {
-            time: {
+            timeLeft: {
               decrement: result
             },
-            total: {
+            totalLeft: {
               decrement: payment.amount
             }
           }
-        })
-      } else if(payment.type === TYPE.OUT) {
-        await this.prisma.partners.update({
-          data: { balance: { decrement: createPaymentDto.amount } },
-          where: {id: createPaymentDto.partnerId}
         })
       }
       return payment

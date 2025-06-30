@@ -1,0 +1,7 @@
+-- CreateEnum
+CREATE TYPE "DEBT_TYPE" AS ENUM ('PAID', 'NOTCOMPLETED');
+
+-- AlterTable
+ALTER TABLE "Debt" ADD COLUMN     "status" "DEBT_TYPE" NOT NULL DEFAULT 'PAID',
+ADD COLUMN     "timeLeft" DECIMAL(65,30),
+ADD COLUMN     "totalLeft" DECIMAL(65,30);

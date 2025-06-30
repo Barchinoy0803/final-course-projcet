@@ -3,6 +3,7 @@ import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Request } from 'express';
+import { CONTRACT_TYPE } from '@prisma/client';
 
 @Injectable()
 export class ContractService {
@@ -17,15 +18,15 @@ export class ContractService {
       if (+product.quantity < +createContractDto.quantity) throw new Error('There is no enought product!')
 
       const category = await this.prisma.category.findUnique({ where: { id: product.categoryId } })
-
-      const contract = await this.prisma.contract.create({ data: { ...createContractDto, userId } })
+      if(!category) throw new Error('Product category is not exist!')
+      const contract = await this.prisma.contract.create({ data: { ...createContractDto,time: createContractDto.time ?? category.time,status: CONTRACT_TYPE.COMPLETED, userId } })
       if (contract) {
         const { id, sellPrice, quantity, time } = contract;
         await this.prisma.debt.create({
           data: {
             total: +sellPrice * +quantity,
             contractId: id,
-            time: time ?? category?.time
+            time: time ?? category.time
           }
         })
         await this.prisma.product.update({
@@ -78,7 +79,7 @@ export class ContractService {
     try {
       const updated = await this.prisma.contract.update({
         where: { id },
-        data: updateContractDto
+        data: {...updateContractDto, status: CONTRACT_TYPE.COMPLETED}
       })
       return updated
     } catch (error) {

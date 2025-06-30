@@ -32,6 +32,11 @@ export class BuyService {
           },
         });
 
+        await this.prisma.partners.update({
+          data: { balance: { decrement: dto.buyPrice * dto.quantity } },
+          where: {id: dto.partnerId}
+        })
+
         return buy;
       });
     } catch (err) {
